@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Speech Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+
+        .text-input-section {
+            margin-bottom: 30px;
+        }
+
+        .file-upload-area {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .file-upload-label {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .btn-upload {
+            padding: 8px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .btn-upload:hover {
+            background: #5568d3;
+        }
+
+        .file-name {
+            color: #28a745;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            max-height: 500px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .controls-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .control-value {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: #d3d3d3;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #5568d3;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .char-count {
+            text-align: right;
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .char-count .text-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎙️ Text to Speech Generator</h1>
+        <p class="subtitle">Convert text to speech with customizable voice settings</p>
+
+        <div class="text-input-section">
+            <div class="file-upload-area">
+                <label for="fileInput" class="file-upload-label">
+                    📁 Upload Text File (Optional)
+                </label>
+                <input type="file" id="fileInput" accept=".txt,.doc,.docx" style="display: none;">
+                <button id="loadFileBtn" class="btn-upload">Choose File</button>
+                <span id="fileName" class="file-name"></span>
+            </div>
+            <textarea id="textInput" placeholder="Enter or paste your text here... (No character limit)" maxlength="">Hello! This is a text to speech generator. You can adjust the speed, pitch, and volume of my voice.</textarea>
+            <div class="char-count">
+                <span id="charCount">0</span> characters | <span id="wordCount">0</span> words
+            </div>
+        </div>
+
+        <div class="controls-section">
+            <div class="control-group">
+                <label class="control-label">
+                    <span>Voice</span>
+                </label>
+                <select id="voiceSelect">
+                    <option value="">Loading voices...</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>Speed (Rate)</span>
+                    <span class="control-value"><span id="rateValue">1.0</span>x</span>
+                </label>
+                <input type="range" id="rateSlider" min="0.5" max="2" step="0.1" value="1">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>Pitch (Tone)</span>
+                    <span class="control-value"><span id="pitchValue">1.0</span></span>
+                </label>
+                <input type="range" id="pitchSlider" min="0.5" max="2" step="0.1" value="1">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>Volume</span>
+                    <span class="control-value"><span id="volumeValue">100</span>%</span>
+                </label>
+                <input type="range" id="volumeSlider" min="0" max="100" step="1" value="100">
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>Audio Format (for download)</span>
+                </label>
+                <select id="formatSelect">
+                    <option value="webm">WebM (default)</option>
+                    <option value="mp3">MP3</option>
+                    <option value="wav">WAV</option>
+                    <option value="ogg">OGG</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">
+                    <span>Audio Quality</span>
+                </label>
+                <select id="qualitySelect">
+                    <option value="128000">128 kbps (Standard)</option>
+                    <option value="192000" selected>192 kbps (High)</option>
+                    <option value="256000">256 kbps (Very High)</option>
+                    <option value="320000">320 kbps (Maximum)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button id="playBtn" class="btn-primary">
+                ▶️ Play
+            </button>
+            <button id="stopBtn" class="btn-secondary" disabled>
+                ⏹️ Stop
+            </button>
+            <button id="downloadBtn" class="btn-success">
+                💾 Download Audio
+            </button>
+        </div>
+
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        let voices = [];
+        let currentUtterance = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+
+        // Get DOM elements
+        const textInput = document.getElementById('textInput');
+        const fileInput = document.getElementById('fileInput');
+        const loadFileBtn = document.getElementById('loadFileBtn');
+        const fileName = document.getElementById('fileName');
+        const voiceSelect = document.getElementById('voiceSelect');
+        const rateSlider = document.getElementById('rateSlider');
+        const pitchSlider = document.getElementById('pitchSlider');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const formatSelect = document.getElementById('formatSelect');
+        const qualitySelect = document.getElementById('qualitySelect');
+        const rateValue = document.getElementById('rateValue');
+        const pitchValue = document.getElementById('pitchValue');
+        const volumeValue = document.getElementById('volumeValue');
+        const charCount = document.getElementById('charCount');
+        const wordCount = document.getElementById('wordCount');
+        const playBtn = document.getElementById('playBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const status = document.getElementById('status');
+
+        // File upload functionality
+        loadFileBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    textInput.value = event.target.result;
+                    updateCharCount();
+                    fileName.textContent = `✓ Loaded: ${file.name}`;
+                    showStatus(`File "${file.name}" loaded successfully!`, 'success');
+                };
+                reader.onerror = () => {
+                    showStatus('Error reading file', 'error');
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // Load voices
+        function loadVoices() {
+            voices = speechSynthesis.getVoices();
+            voiceSelect.innerHTML = '';
+            
+            if (voices.length === 0) {
+                voiceSelect.innerHTML = '<option value="">No voices available</option>';
+                return;
+            }
+
+            voices.forEach((voice, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${voice.name} (${voice.lang})`;
+                if (voice.default) {
+                    option.selected = true;
+                }
+                voiceSelect.appendChild(option);
+            });
+        }
+
+        // Load voices on page load and when they change
+        loadVoices();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
+
+        // Update character count and word count
+        function updateCharCount() {
+            const text = textInput.value;
+            charCount.textContent = text.length.toLocaleString();
+            
+            // Count words (split by whitespace and filter empty strings)
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+            wordCount.textContent = words.length.toLocaleString();
+        }
+        updateCharCount();
+        textInput.addEventListener('input', updateCharCount);
+
+        // Update slider values
+        rateSlider.addEventListener('input', () => {
+            rateValue.textContent = parseFloat(rateSlider.value).toFixed(1);
+        });
+
+        pitchSlider.addEventListener('input', () => {
+            pitchValue.textContent = parseFloat(pitchSlider.value).toFixed(1);
+        });
+
+        volumeSlider.addEventListener('input', () => {
+            volumeValue.textContent = volumeSlider.value;
+        });
+
+        // Show status message
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = `status show ${type}`;
+            setTimeout(() => {
+                status.classList.remove('show');
+            }, 3000);
+        }
+
+        // Play speech (with support for long text)
+        playBtn.addEventListener('click', () => {
+            const text = textInput.value.trim();
+            
+            if (!text) {
+                showStatus('Please enter some text to convert to speech', 'error');
+                return;
+            }
+
+            // Stop any ongoing speech
+            speechSynthesis.cancel();
+
+            // For very long text, we need to split it into chunks
+            // because some browsers have limits on utterance length
+            const maxLength = 200; // characters per chunk (adjust as needed)
+            const sentences = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
+            const chunks = [];
+            let currentChunk = '';
+
+            sentences.forEach(sentence => {
+                if ((currentChunk + sentence).length > maxLength && currentChunk.length > 0) {
+                    chunks.push(currentChunk.trim());
+                    currentChunk = sentence;
+                } else {
+                    currentChunk += sentence;
+                }
+            });
+            
+            if (currentChunk) {
+                chunks.push(currentChunk.trim());
+            }
+
+            let chunkIndex = 0;
+
+            function speakNextChunk() {
+                if (chunkIndex >= chunks.length) {
+                    playBtn.disabled = false;
+                    stopBtn.disabled = true;
+                    showStatus('Playback finished', 'success');
+                    return;
+                }
+
+                currentUtterance = new SpeechSynthesisUtterance(chunks[chunkIndex]);
+                
+                // Set voice
+                if (voiceSelect.value !== '') {
+                    currentUtterance.voice = voices[voiceSelect.value];
+                }
+
+                // Set parameters
+                currentUtterance.rate = parseFloat(rateSlider.value);
+                currentUtterance.pitch = parseFloat(pitchSlider.value);
+                currentUtterance.volume = parseFloat(volumeSlider.value) / 100;
+
+                currentUtterance.onend = () => {
+                    chunkIndex++;
+                    speakNextChunk();
+                };
+
+                currentUtterance.onerror = (event) => {
+                    console.error('Speech error:', event);
+                    chunkIndex++;
+                    speakNextChunk();
+                };
+
+                speechSynthesis.speak(currentUtterance);
+            }
+
+            playBtn.disabled = true;
+            stopBtn.disabled = false;
+            
+            if (chunks.length > 1) {
+                showStatus(`Playing... (${chunks.length} parts)`, 'info');
+            } else {
+                showStatus('Playing...', 'info');
+            }
+            
+            speakNextChunk();
+        });
+
+        // Stop speech
+        stopBtn.addEventListener('click', () => {
+            speechSynthesis.cancel();
+            playBtn.disabled = false;
+            stopBtn.disabled = true;
+            showStatus('Stopped', 'info');
+        });
+
+        // Download audio
+        downloadBtn.addEventListener('click', async () => {
+            const text = textInput.value.trim();
+            
+            if (!text) {
+                showStatus('Please enter some text to convert to speech', 'error');
+                return;
+            }
+
+            const selectedFormat = formatSelect.value;
+            const selectedQuality = parseInt(qualitySelect.value);
+
+            showStatus('Generating audio file... This may take a moment.', 'info');
+            downloadBtn.disabled = true;
+
+            try {
+                // Create audio context
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                const audioContext = new AudioContext();
+                const destination = audioContext.createMediaStreamDestination();
+
+                // Determine MIME type based on format
+                let mimeType;
+                switch(selectedFormat) {
+                    case 'mp3':
+                        mimeType = 'audio/mpeg';
+                        break;
+                    case 'wav':
+                        mimeType = 'audio/wav';
+                        break;
+                    case 'ogg':
+                        mimeType = 'audio/ogg';
+                        break;
+                    case 'webm':
+                    default:
+                        mimeType = 'audio/webm';
+                        break;
+                }
+
+                // Check if browser supports the requested format
+                let finalMimeType = mimeType;
+                if (!MediaRecorder.isTypeSupported(mimeType)) {
+                    console.warn(`${mimeType} not supported, falling back to webm`);
+                    finalMimeType = 'audio/webm';
+                    showStatus(`${selectedFormat.toUpperCase()} not supported by browser, using WebM instead`, 'info');
+                }
+
+                // Setup media recorder with quality options
+                const options = {
+                    mimeType: finalMimeType,
+                    audioBitsPerSecond: selectedQuality
+                };
+
+                audioChunks = [];
+                mediaRecorder = new MediaRecorder(destination.stream, options);
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: finalMimeType });
+                    
+                    // Determine file extension
+                    let extension = selectedFormat;
+                    if (finalMimeType === 'audio/webm' && selectedFormat !== 'webm') {
+                        extension = 'webm';
+                    }
+
+                    // If user selected MP3 or WAV but browser doesn't support it,
+                    // we can try to convert using Web Audio API (basic conversion)
+                    if ((selectedFormat === 'mp3' || selectedFormat === 'wav') && finalMimeType === 'audio/webm') {
+                        showStatus(`Note: ${selectedFormat.toUpperCase()} conversion not available in browser. Downloading as WebM. You can convert using tools like FFmpeg or online converters.`, 'info');
+                    }
+
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    const a = document.createElement('a');
+                    a.href = audioUrl;
+                    a.download = `speech_${Date.now()}.${extension}`;
+                    a.click();
+                    URL.revokeObjectURL(audioUrl);
+                    
+                    showStatus(`Audio downloaded successfully as ${extension.toUpperCase()}!`, 'success');
+                    downloadBtn.disabled = false;
+                };
+
+                // For long text, we need to handle it in chunks
+                const maxLength = 200;
+                const sentences = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
+                const chunks = [];
+                let currentChunk = '';
+
+                sentences.forEach(sentence => {
+                    if ((currentChunk + sentence).length > maxLength && currentChunk.length > 0) {
+                        chunks.push(currentChunk.trim());
+                        currentChunk = sentence;
+                    } else {
+                        currentChunk += sentence;
+                    }
+                });
+                
+                if (currentChunk) {
+                    chunks.push(currentChunk.trim());
+                }
+
+                let chunkIndex = 0;
+
+                function speakAndRecordNextChunk() {
+                    if (chunkIndex >= chunks.length) {
+                        setTimeout(() => {
+                            mediaRecorder.stop();
+                            audioContext.close();
+                        }, 500);
+                        return;
+                    }
+
+                    const utterance = new SpeechSynthesisUtterance(chunks[chunkIndex]);
+                    if (voiceSelect.value !== '') {
+                        utterance.voice = voices[voiceSelect.value];
+                    }
+                    utterance.rate = parseFloat(rateSlider.value);
+                    utterance.pitch = parseFloat(pitchSlider.value);
+                    utterance.volume = parseFloat(volumeSlider.value) / 100;
+
+                    utterance.onend = () => {
+                        chunkIndex++;
+                        // Small delay between chunks
+                        setTimeout(speakAndRecordNextChunk, 100);
+                    };
+
+                    utterance.onerror = (error) => {
+                        console.error('Speech error:', error);
+                        chunkIndex++;
+                        speakAndRecordNextChunk();
+                    };
+
+                    speechSynthesis.speak(utterance);
+                }
+
+                // Start recording
+                mediaRecorder.start();
+                speakAndRecordNextChunk();
+
+            } catch (error) {
+                console.error('Download error:', error);
+                showStatus('Error generating audio file. Please try again or use a different format.', 'error');
+                downloadBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
